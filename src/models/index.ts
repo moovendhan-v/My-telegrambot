@@ -3,7 +3,14 @@ import DbSequelize from "@/config/db";
 import * as fs from "fs";
 import * as path from "path";
 
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const initializeModels = async (sequelize: Sequelize) => {
+  // TODO: Handle the dynamic imports based on the config file, becuase failed to restarting the tables
   const models: { [key: string]: any } = {};
   const modelsPath = path.resolve(__dirname);
 
@@ -17,7 +24,7 @@ const initializeModels = async (sequelize: Sequelize) => {
   }
 
   // Sync all models
-  await sequelize.sync();
+  await sequelize.sync({ alter: true });
   console.log("Database synced");
 
   return models;
