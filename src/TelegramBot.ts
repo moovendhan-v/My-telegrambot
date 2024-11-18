@@ -2,18 +2,21 @@ import { Telegraf } from 'telegraf';
 import initializeApp from "@/models/index";
 import StartCommand from '@/commands/Start.command';
 import HelpCommand from '@/commands/Help.command';
+import ReminderCommand from '@/commands/Reminder.command';
 
 class TelegramBot {
     private bot: Telegraf;
-    private token: string = 'TELEGRAM_BOT_TOKEN'; // TODO: Get this from env
+    private token: string = 'token here'; // TODO: Get this from env
     private models: any;
 
     constructor() {
         this.bot = new Telegraf(this.token);
+        console.log('bot', this.bot)
     }
 
     public async init() {
         const { Models } = await initializeApp();
+        console.log('Models', Models)
         this.models = Models;
         this.setUpCommands();
         this.startBot();
@@ -22,12 +25,11 @@ class TelegramBot {
     private setUpCommands() {
         const startCommand = new StartCommand(this.bot);
         const helpCommand = new HelpCommand(this.bot);
-        // TODO: Update this reminder command in seprate file
-        // const reminderCommand = new ReminderCommand(this.bot, this.models.Reminder);
+        const reminderCommand = new ReminderCommand(this.bot, this.models.Reminder);
 
         startCommand.register();
         helpCommand.register();
-        // reminderCommand.register();
+        reminderCommand.register();
     }
 
     private async startBot() {
