@@ -1,24 +1,27 @@
 import { Telegraf, Context as TelegrafContext } from 'telegraf';
-import initializeApp from '@/models';
+import Models from '@/models/Index'; // Import the centralized Models
 
-const { Models } = await initializeApp();
+declare module 'telegraf' {
+  export interface Context {
+    args: string[];
+    userid: Number;
+  }
+}
 
 class StartCommand {
   private bot: Telegraf;
-  private models: typeof Models
 
   constructor(bot: Telegraf) {
     this.bot = bot;
-    this.models = Models;
-    this.handleStart = this.handleStart.bind(this);
   }
 
   public register() {
-    this.bot.start(this.handleStart);
+    this.bot.start(this.handleStart.bind(this));
   }
 
   private async handleStart(ctx: TelegrafContext) {
-    const userId = ctx.from?.id?.toString();
+
+    const userId = ctx.from?.id;
     const username = ctx.from?.username || 'Anonymous';
 
     if (!userId) {
@@ -27,14 +30,13 @@ class StartCommand {
     }
 
     try {
-      // Check if the user already exists
-      const [user, created] = await this.models.User.findOrCreate({
+      const UserModel = Models.User;
+
+      const [user, created] = await UserModel.findOrCreate({
         where: { userId },
-        defaults: { username },
       });
 
       if (!created && user.username !== username) {
-        // Update username if it has changed
         await user.update({ username });
         ctx.reply(`Welcome back, ${username}! Your username has been updated.`);
       } else if (created) {

@@ -1,0 +1,86 @@
+{
+  "env": {
+    "browser": false,
+    "node": true,
+    "es2021": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    // TypeScript-specific rules
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { "argsIgnorePattern": "^_" }
+    ],
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/no-explicit-any": "warn",
+
+    // Enforce file naming conventions
+    "unicorn/filename-case": [
+      "error",
+      {
+        "cases": {
+          "camelCase": true,
+          "kebabCase": false,
+          "snakeCase": false,
+          "pascalCase": false
+        },
+        "ignore": ["src/models/*.model.ts", "src/commands/*.command.ts"]
+      }
+    ],
+    // Node.js specific rules
+    "no-process-exit": "error",
+    "global-require": "error",
+    "no-buffer-constructor": "error",
+    "callback-return": ["error", ["callback", "cb", "next"]],
+
+    // General rules
+    "prettier/prettier": ["error"], // Optional: Only if using Prettier
+    "no-console": "warn",
+    "eqeqeq": ["error", "always"]
+  },
+  // "overrides": [
+  //   {
+  //     "files": ["src/models/*.ts"],
+  //     "rules": {
+  //       "unicorn/filename-case": [
+  //         "error",
+  //         {
+  //           "cases": {
+  //             "camelCase": false,
+  //             "kebabCase": false,
+  //             "snakeCase": false,
+  //             "pascalCase": true
+  //           }
+  //         }
+  //       ]
+  //     }
+  //   },
+  //   {
+  //     // Enforce naming conventions for command files
+  //     "files": ["src/commands/*.ts"],
+  //     "rules": {
+  //       "unicorn/filename-case": [
+  //         "error",
+  //         {
+  //           "cases": {
+  //             "camelCase": false,
+  //             "kebabCase": false,
+  //             "snakeCase": false,
+  //             "pascalCase": true
+  //           }
+  //         }
+  //       ]
+  //     }
+  //   }
+  // ]
+}

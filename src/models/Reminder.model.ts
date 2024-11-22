@@ -1,20 +1,23 @@
-import { DataTypes, Sequelize, Model, Optional } from 'sequelize';
-import User from '@/models/User.model';
+import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
+import DbSequelize from '@/config/db';
 
-export interface ReminderAttributes {
+interface ReminderAttributes {
   id: string;
   message: string;
   time: Date;
-  userId: number; // userId as numeric type to match the User model
+  userId: number;
 }
 
-interface ReminderCreationAttributes extends Optional<ReminderAttributes, 'id'> {}
+interface ReminderCreationAttributes
+  extends Optional<ReminderAttributes, 'id'> { }
 
-export default class Reminder extends Model<ReminderAttributes, ReminderCreationAttributes> {
+class Reminder
+  extends Model<ReminderAttributes, ReminderCreationAttributes>
+  implements ReminderAttributes {
   public id!: string;
   public message!: string;
   public time!: Date;
-  public userId!: number; // Foreign key referencing the userId in User model
+  public userId!: number;
 
   static initModel(sequelize: Sequelize) {
     return Reminder.init(
@@ -23,6 +26,7 @@ export default class Reminder extends Model<ReminderAttributes, ReminderCreation
           type: DataTypes.UUID,
           defaultValue: DataTypes.UUIDV4,
           primaryKey: true,
+          allowNull: false,
         },
         message: {
           type: DataTypes.STRING,
@@ -33,28 +37,18 @@ export default class Reminder extends Model<ReminderAttributes, ReminderCreation
           allowNull: false,
         },
         userId: {
-          type: DataTypes.BIGINT,
+          type: DataTypes.INTEGER,
           allowNull: false,
-          references: {
-            model: 'Users',
-            key: 'userId',
-          },
-          onDelete: 'CASCADE',
         },
       },
       {
-        sequelize,
+        sequelize: DbSequelize,
         timestamps: true,
         modelName: 'Reminder',
       }
     );
   }
 
-  // Define relationships
-  static associate() {
-    Reminder.belongsTo(User, {
-      foreignKey: 'userId',
-      as: 'user', // The alias used to refer to the related User
-    });
-  }
 }
+
+export default Reminder;

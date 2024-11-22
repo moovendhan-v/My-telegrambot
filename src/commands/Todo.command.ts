@@ -1,10 +1,10 @@
 import { Telegraf, Context as TelegrafContext } from 'telegraf';
 import Todo from '@/models/Todo.model';
 
-// Extend the default Telegraf Context type to include args
 declare module 'telegraf' {
   export interface Context {
     args: string[];
+    userid: Number;
   }
 }
 
@@ -12,9 +12,9 @@ class TodoCommand {
   private bot: Telegraf;
   private Todo: typeof Todo;
 
-  constructor(bot: Telegraf, TodoModel: typeof Todo) {
+  constructor(bot: Telegraf) {
     this.bot = bot;
-    this.Todo = TodoModel;
+    this.Todo = Todo;
   }
 
   public register() {
@@ -26,15 +26,13 @@ class TodoCommand {
       ctx.reply('Please provide a Todo text. Example: /todo Take lunch');
       return;
     }
-  
-    // Join the arguments (they are split by space) to form the Todo message
+
     const TodoText = ctx.args.join(' ');
-  
-    // Retrieve and convert the userId to a string
-    const userId = ctx.from?.id?.toString();
-  
+
+    const userId = ctx.from?.id;
+
     if (!userId) return ctx.reply('Could not retrieve user information.');
-  
+
     try {
       // Save the Todo to the database
       await this.Todo.create({ message: TodoText, userId });
@@ -44,7 +42,6 @@ class TodoCommand {
       ctx.reply('Failed to save your Todo. Please try again later.');
     }
   }
-  
 }
 
 export default TodoCommand;

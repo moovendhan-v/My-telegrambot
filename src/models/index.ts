@@ -1,39 +1,24 @@
-import { Sequelize } from "sequelize";
-import DbSequelize from "@/config/db";
-import * as fs from "fs";
-import * as path from "path";
+import User from '@/models/User.model';
+import Reminder from '@/models/Reminder.model';
+import Session from '@/models/Session.model';
+import Todo from '@/models/Todo.model';
+import ErrorLog from '@/models/Errorlog.model';
+import DbSequelize from '@/config/db';
 
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const initializeModels = async (sequelize: Sequelize) => {
-  // TODO: Handle the dynamic imports based on the config file, becuase failed to restarting the tables
-  const models: { [key: string]: any } = {};
-  const modelsPath = path.resolve(__dirname);
-
-  // Load all model files dynamically
-  const modelFiles = fs.readdirSync(modelsPath).filter((file) => file.endsWith(".model.ts"));
-
-  for (const file of modelFiles) {
-    const { default: Model } = await import(path.join(modelsPath, file));
-    const modelName = file.replace(".model.ts", "");
-    models[modelName] = Model.initModel(sequelize);
-  }
-
-  // Sync all models
-  await sequelize.sync({ alter: true });
-  console.log("Database synced");
-
-  return models;
+const Models = {
+    User: User.initModel(DbSequelize),
+    Reminder: Reminder.initModel(DbSequelize),
+    Session: Session.initModel(DbSequelize),
+    Todo: Todo.initModel(DbSequelize),
+    ErrorLog: ErrorLog.initModel(DbSequelize)
 };
 
-// Initialize models in an async function
-const initializeApp = async () => {
-  const Models = await initializeModels(DbSequelize);
-  return { DbSequelize, Models };
-};
+// Set up associations
+Object.values(Models).forEach((model) => {
+    if ('associate' in model) {
+        (model as any).associate(Models);
+    }
+});
 
-export default initializeApp;
+export { DbSequelize, Models };
+export default Models;
